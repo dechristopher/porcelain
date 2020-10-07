@@ -39,7 +39,7 @@ func init() {
 // Boot will boot a new bigcache for tile storage in memory
 func boot() *bigcache.BigCache {
 	cache, err := bigcache.NewBigCache(bigcache.Config{
-		Shards:           1024 * 8,
+		Shards:           1024 * 64,
 		LifeWindow:       -1,
 		CleanWindow:      -1,
 		MaxEntrySize:     1024 * 1024,
