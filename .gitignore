@@ -1,6 +1,13 @@
 .**
 !.gitignore
 
+tiles
+tiles/
+tiles/**
+/tiles
+/tiles/
+/tiles/**
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
