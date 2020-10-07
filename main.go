@@ -25,33 +25,67 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	rcvr "github.com/gofiber/fiber/v2/middleware/recover"
+	recover2 "github.com/gofiber/fiber/v2/middleware/recover"
 
 	"github.com/dechristopher/porcelain/cache"
 	"github.com/dechristopher/porcelain/handle"
+	"github.com/dechristopher/porcelain/prime"
 )
+
+const version = "v0.0.2"
 
 // init starts porcelain's caches and primers
 func init() {
-	cache.Boot()
+	fmt.Println("porcelain " + version)
+
+	tilesDirectory := flag.String("tiles", "tiles",
+		"Specify the directory containing rendered tiles")
+	zoomRange := flag.String("range", "0-18",
+		"Specify the range of zoom levels this cache serves")
+	flag.Parse()
+
+	cache.ParseZoomRange(*zoomRange)
+
+	err := prime.Tiles(*tilesDirectory)
+	if err != nil {
+		log.Fatalf("Failed to prime, %s", err.Error())
+	}
+
+	fmt.Printf("Serving zoom levels %s from directory: %s",
+		*zoomRange, *tilesDirectory)
 }
 
 // main starts the fiber webserver
 func main() {
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		Prefork:       false,
+		StrictRouting: false,
+		CaseSensitive: false,
+		Immutable:     false,
+		BodyLimit:     1024 * 1024,
+	})
 
 	// recover from panics
-	app.Use(rcvr.New())
+	app.Use(recover2.New())
 
 	// compress and optimize for speed
 	app.Use(compress.New(compress.Config{
 		Level: compress.LevelBestSpeed,
+	}))
+
+	// allow requests from all origins
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		AllowMethods: "GET",
 	}))
 
 	// ignore favicon logging
