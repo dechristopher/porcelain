@@ -25,7 +25,6 @@
 package handle
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
@@ -35,16 +34,21 @@ import (
 
 // Tile returns a tile hot from cache if it exists
 func Tile(ctx *fiber.Ctx) error {
+	if !cache.IsZoomServed(-1, ctx.Params("z")) {
+		ctx.Status(404)
+		return nil
+	}
+
 	xyz := fmt.Sprintf("%s/%s/%s",
 		ctx.Params("z"), ctx.Params("x"), ctx.Params("y"))
 	tile, err := cache.Cache.Get(xyz)
 	if err != nil {
-		ctx.Status(500)
-		return err
+		ctx.Status(404)
+		return nil
 	}
 	if len(tile) == 0 {
 		ctx.Status(404)
-		return errors.New("no tile found for request: %s" + xyz)
+		return nil
 	}
 	ctx.Response().Header.Set("Content-Type", "image/png")
 	ctx.Status(200)
