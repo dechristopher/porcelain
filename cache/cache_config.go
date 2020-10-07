@@ -35,6 +35,8 @@ var (
 	ZoomRangeMax int
 )
 
+// ParseZoomRange parses the min and max zoom level configuration values
+// from the --range flag on startup
 func ParseZoomRange(zoomRange string) {
 	minmax := strings.Split(zoomRange, "-")
 	if len(minmax) != 2 {
@@ -50,4 +52,23 @@ func ParseZoomRange(zoomRange string) {
 
 	ZoomRangeMin = min
 	ZoomRangeMax = max
+}
+
+// IsZoomServed returns whether or not the cache is configured to
+// serve tiles at the specified zoom level
+func IsZoomServed(zoomLevel int, zoomLevelString ...string) bool {
+	if len(zoomLevelString) > 0 {
+		zl, err := strconv.Atoi(zoomLevelString[0])
+		if err != nil {
+			return false
+		}
+		return evalIsZoomServed(zl)
+	}
+	return evalIsZoomServed(zoomLevel)
+}
+
+// evalIsZoomServed performs the within range check to see if a given
+// zoom level is served by the cache
+func evalIsZoomServed(zoomLevel int) bool {
+	return zoomLevel >= ZoomRangeMin && zoomLevel <= ZoomRangeMax
 }
