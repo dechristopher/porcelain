@@ -26,25 +26,37 @@ package cache
 
 import (
 	"log"
-	"time"
 
 	"github.com/allegro/bigcache/v2"
 )
 
 var Cache *bigcache.BigCache
 
+func init() {
+	Cache = boot()
+}
+
 // Boot will boot a new bigcache for tile storage in memory
-func Boot() {
-	Cache, err := bigcache.NewBigCache(bigcache.DefaultConfig(10 * time.Minute))
+func boot() *bigcache.BigCache {
+	cache, err := bigcache.NewBigCache(bigcache.Config{
+		Shards:           1024 * 8,
+		LifeWindow:       -1,
+		CleanWindow:      -1,
+		MaxEntrySize:     1024 * 1024,
+		StatsEnabled:     true,
+		Verbose:          true,
+		HardMaxCacheSize: 8192,
+	})
 	if err != nil {
 		log.Fatalf("Failed to boot cache, %s", err.Error())
 	}
-	errSet := Cache.Set("test", []byte("test"))
-	errDel := Cache.Delete("test")
+	errSet := cache.Set("test", []byte("test"))
+	errDel := cache.Delete("test")
 	if errSet != nil {
 		log.Fatalf("Failed to boot cache, %s", errSet.Error())
 	}
 	if errDel != nil {
 		log.Fatalf("Failed to boot cache, %s", errDel.Error())
 	}
+	return cache
 }
