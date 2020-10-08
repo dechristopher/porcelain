@@ -41,7 +41,7 @@ func Tile(ctx *fiber.Ctx) error {
 
 	xyz := fmt.Sprintf("%s/%s/%s",
 		ctx.Params("z"), ctx.Params("x"), ctx.Params("y"))
-	tile, err := cache.Cache.Get(xyz)
+	tile, err := cache.Instance.Get(xyz)
 	if err != nil {
 		ctx.Status(404)
 		return nil

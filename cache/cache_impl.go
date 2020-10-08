@@ -30,10 +30,10 @@ import (
 	"github.com/allegro/bigcache/v2"
 )
 
-var Cache *bigcache.BigCache
+var Instance *bigcache.BigCache
 
 func init() {
-	Cache = boot()
+	Instance = boot()
 }
 
 // Boot will boot a new bigcache for tile storage in memory

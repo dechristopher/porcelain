@@ -71,14 +71,14 @@ func Tiles(directory string) error {
 				if err != nil {
 					return err
 				}
-				err = cache.Cache.Set(key, tile)
+				err = cache.Instance.Set(key, tile)
 				numCached++
 				return err
 			}
 			return nil
 		})
 
-	fmt.Printf("Cached %d/%d tiles\n", cache.Cache.Len(), numCached)
+	fmt.Printf("Cached %d/%d tiles\n", cache.Instance.Len(), numCached)
 
 	return errWalk
 }
